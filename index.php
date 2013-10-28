@@ -27,11 +27,6 @@ $input_file = "bugzilla-data.csv.BACKUP";
 $data = array();
 $column_headers = null;
 
-$WHITEBOARD_COLUMN_NAME = "Whiteboard";
-$whiteboard_index = false;
-$BUG_ID_COLUMN_NAME = "Bug ID";
-$bug_id_index = false;
-
 // URL for showing a bug.
 $bug_show_url = "https://bugs.freedesktop.org/show_bug.cgi?id=";
 
@@ -49,30 +44,6 @@ while(!feof($in_handle)) {
   if(is_null($column_headers)) {
     $column_headers = $line_array;
 
-/*
-    // We need to know which field contains the whiteboard so we can
-    // grab whiteboard fields as we loop through the data.
-    $whiteboard_index = array_search($WHITEBOARD_COLUMN_NAME, $line_array);
-
-    // If we couldn't find the whiteboard index, then we need to quit.
-    if(($whiteboard_index != 0) &&
-       !$whiteboard_index) {
-      print "ERROR: Can't find whiteboard column ('$WHITEBOARD_COLUMN_NAME') in headers<br>\n";
-      die("Whiteboard column kahhhhhhhhn...");
-    }
-
-    // We need to know which field contains the Bug ID for similar
-    // reasons...
-    $bug_id_index = array_search($BUG_ID_COLUMN_NAME, $line_array);
-
-    // If we couldn't find the Bug ID index, then we need to quit.
-    if(($bug_id_index != 0) &&
-       !$bug_id_index) {
-      print "ERROR: Can't find bug id column ('$BUG_ID_COLUMN_NAME') in headers<br>\n";
-      print_r($line_array);
-      die("Bug ID column kahhhhhhhhn...");
-    }
-*/
   } else {
     // Grab a line of bugzilla data and put it in a hash keyed by
     // column header.
@@ -88,7 +59,6 @@ while(!feof($in_handle)) {
     if($tags == array('')) {
       $tags = array();
     }
-//    $old_tags = explode(" ", $row["Whiteboard"]);
 
     foreach($tags as $tag) {
       // Add this bug # to the list.
@@ -164,13 +134,7 @@ foreach($whiteboard_tags as $name => $id_array) {
 print "</table>\n";
 }
 
-
-// Create an alphabetized list of unique values listed in the
-// Whiteboard.
-
-// Print out bugs in groups based on Whiteboard tag.
-
-
+print "<hr>\n";
 print "<br><br>Script done<br>\n";
 
 ?>
