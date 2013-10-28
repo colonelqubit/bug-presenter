@@ -77,6 +77,13 @@ fclose($in_handle);
 print "<h1>Bug Presenter:</h1>\n";
 print "<h3>LibreOffice Bugs organized by <a href=\"https://wiki.documentfoundation.org/QA/Bugzilla/Fields/Whiteboard\">whiteboard</a> tags.</h3>\n";
 
+print "<ul>\n";
+print "  <li>Lists of bugs are presented below.</li>\n";
+print "  <li>We're only including UNCONFIRMED bugs for now.</li>\n";
+print "  <li>Whiteboard tags are sorted in case-insensitive alphabetical order.</li>\n";
+print "  <li>Code for this Bug Presenter should be pushed up to GitHub soon. Feel free to throw something at me on IRC to speed-up the process :-)</li>\n";
+print "</ul>\n";
+
 print "<br><br><br>\n";
 
 print "Headers are...<br>\n";
@@ -90,7 +97,7 @@ print "<hr>\n";
 print "Whiteboard tags are...<br>\n";
 
 // Order whiteboard tags alphabetically.
-ksort($whiteboard_tags);
+uksort($whiteboard_tags, 'strcasecmp');
 
 //print_r(array_keys($whiteboard_tags));
 
