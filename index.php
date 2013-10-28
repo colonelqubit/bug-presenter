@@ -81,14 +81,14 @@ while(!feof($in_handle)) {
     // Grab the whiteboard string, split it into tags, and add the
     // tags to our hash of whiteboard tags.
 
-    $tags = array();
     // NOTE: explode() won't work, as we sometimes have
     // extraneous/duplicate whitespace in the whiteboard.
     // UPDATE: Well...perhaps we should see any weird whitespace problems?
-    if(!empty($row["Whiteboard"])) {
-      $tags = explode(" ", $row["Whiteboard"]);
+    $tags = preg_split('/\s+/', trim($row["Whiteboard"]));
+    if($tags == array('')) {
+      $tags = array();
     }
-    //$tags = preg_split('/\s+/', $line_array[$whiteboard_index]);
+//    $old_tags = explode(" ", $row["Whiteboard"]);
 
     foreach($tags as $tag) {
       // Add this bug # to the list.
@@ -122,13 +122,15 @@ print "Whiteboard tags are...<br>\n";
 // Order whiteboard tags alphabetically.
 ksort($whiteboard_tags);
 
+//print_r(array_keys($whiteboard_tags));
+
 // Fields to print out for each bug.
 $fields = array("Bug ID", "Component", "Status", "Summary", "Whiteboard");
 
 foreach($whiteboard_tags as $name => $id_array) {
   print "<h2 id=\"$name\">$name</h2>\n";
 
-  print "<table>\n";
+  print "<table width=\"100%\">\n";
   print "  <tr>\n";
   foreach($fields as $field) {
     print "    <th>$field</th>\n";
