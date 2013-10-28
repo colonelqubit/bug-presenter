@@ -1,0 +1,5 @@
+Data for this Bug Presenter is pulled out of Bugzilla using the
+following command:
+
+wget -O foobar.csv "https://bugs.freedesktop.org/buglist.cgi?bug_status=UNCONFIRMED&product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords"
+
