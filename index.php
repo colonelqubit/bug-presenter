@@ -18,13 +18,18 @@
 
 // Take the bugzilla data as CSV input and chop it up by Whiteboard
 // tag.
-$input_file = "bugzilla-data.csv";
+$input_file = "bugzilla-data.csv.BACKUP";
 
 $data = array();
 $column_headers = null;
 
 $WHITEBOARD_COLUMN_NAME = "Whiteboard";
-$whiteboard_index = null;
+$whiteboard_index = false;
+$BUG_ID_COLUMN_NAME = "Bug ID";
+$bug_id_index = false;
+
+// URL for showing a bug.
+$bug_show_url = "https://bugs.freedesktop.org/show_bug.cgi?id=";
 
 // This is a hash, keyed by tag names.
 $whiteboard_tags = array();
@@ -45,9 +50,22 @@ while(!feof($in_handle)) {
     $whiteboard_index = array_search($WHITEBOARD_COLUMN_NAME, $line_array);
 
     // If we couldn't find the whiteboard index, then we need to quit.
-    if(!$whiteboard_index) {
+    if(($whiteboard_index != 0) &&
+       !$whiteboard_index) {
       print "ERROR: Can't find whiteboard column ('$WHITEBOARD_COLUMN_NAME') in headers<br>\n";
       die("Whiteboard column kahhhhhhhhn...");
+    }
+
+    // We need to know which field contains the Bug ID for similar
+    // reasons...
+    $bug_id_index = array_search($BUG_ID_COLUMN_NAME, $line_array);
+
+    // If we couldn't find the Bug ID index, then we need to quit.
+    if(($bug_id_index != 0) &&
+       !$bug_id_index) {
+      print "ERROR: Can't find bug id column ('$BUG_ID_COLUMN_NAME') in headers<br>\n";
+      print_r($line_array);
+      die("Bug ID column kahhhhhhhhn...");
     }
   } else {
     // Grab a line of bugzilla data.
@@ -65,7 +83,8 @@ while(!feof($in_handle)) {
     foreach($tags as $tag) {
       // Throw out empty strings.
       if(!empty($tag)) {
-        $whiteboard_tags[$tag] += 1;
+        // Add this bug # to the list.
+        $whiteboard_tags[$tag] []= $line_array[$bug_id_index];
       }
     }
   }
@@ -84,8 +103,17 @@ print "</ul>\n";
 print "<hr>\n";
 print "Whiteboard tags are...<br>\n";
 print "<table>\n";
-foreach($whiteboard_tags as $name => $count) {
-  print "<tr><td>$name</td><td>$count</td></tr>\n";
+
+// Order whiteboard tags alphabetically.
+ksort($whiteboard_tags);
+
+foreach($whiteboard_tags as $name => $id_array) {
+  print "<tr><th>$name</th><td>\n";
+  foreach($id_array as $id) {
+    print "<a href=\"$bug_show_url$id\">$id</a> \n";
+  }
+  print "</td></tr>\n";
+
 }
 print "</table>\n";
 
