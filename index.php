@@ -86,20 +86,35 @@ print "</ul>\n";
 
 print "<br><br><br>\n";
 
-print "Headers are...<br>\n";
+print "<hr>\n";
+
+// Order whiteboard tags alphabetically.
+uksort($whiteboard_tags, 'strcasecmp');
+
+print "<table width=\"100%\">\n";
+print "  <tr>\n";
+
+print "    <td valign=\"top\">\n";
+print "Whiteboard tags are...<br>\n";
+print "<ul>\n";
+foreach($whiteboard_tags as $tag => $whatever) {
+  print "  <li><a href=\"#$tag\">$tag</a></li>\n";
+}
+print "</ul>\n";
+print "    </td>\n";
+
+print "    <td valign=\"top\">\n";
+print "Columns are...<br>\n";
 print "<ul>\n";
 foreach($column_headers as $header) {
   print "  <li>$header</li>\n";
 }
 print "</ul>\n";
+print "    </td>\n";
 
-print "<hr>\n";
-print "Whiteboard tags are...<br>\n";
+print "  </tr>\n";
+print "</table>\n";
 
-// Order whiteboard tags alphabetically.
-uksort($whiteboard_tags, 'strcasecmp');
-
-//print_r(array_keys($whiteboard_tags));
 
 // Fields to print out for each bug.
 $fields = array("Bug ID", "Component", "Status", "Summary", "Whiteboard");
