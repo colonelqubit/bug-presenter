@@ -16,6 +16,20 @@
 //
 //
 
+// HTML blah, blah
+$html_start = <<<EOD
+<html>
+  <head>
+    <title>Qubit and the QA Team welcome you to the magical Bug Presenter</title>
+
+    <link rel="stylesheet" type="text/css" href="styles.css">
+  </head>
+
+  <body>
+EOD;
+print $html_start;
+
+
 // Take the bugzilla data as CSV input and chop it up by Whiteboard
 // tag.
 //
@@ -103,7 +117,23 @@ print "<br><br><br>\n";
 print "<hr>\n";
 
 // Order whiteboard tags alphabetically.
-uksort($whiteboard_tags, 'strcasecmp');
+//
+// strcasecmp() is great, but we want to lump targets:
+//    target:3.6.0
+//   (target:3.6.0)
+//
+// To make that work, we could do one of two things
+//   1) Sort both tags into one hash location
+//   2) Tweak the sort algorithm to ignore parens
+//
+function tag_cmp_function($a, $b) {
+  $replace = array("(" => "", ")" => "");
+  $a = strtr($a, $replace);
+  $b = strtr($b, $replace);
+  return strcasecmp($a, $b);
+}
+
+uksort($whiteboard_tags, 'tag_cmp_function');
 
 print "<table width=\"100%\">\n";
 print "  <tr>\n";
@@ -161,7 +191,11 @@ print "</table>\n";
 $fields = array("Bug ID", "Component", "Status", "Summary", "Whiteboard");
 
 foreach($whiteboard_tags as $name => $id_array) {
-  print "<h2 id=\"$name\">$name</h2>\n";
+  print "<hr>\n";
+  print "<div class=\"floatleft\"><h2 id=\"$name\">$name</h2></div>\n";
+
+  // Back-to-top link
+  print "<div class=\"floatright\" /><a href=\"#top\"><em>Back to top</em></a></div>\n";
 
   print "<table width=\"100%\">\n";
   print "  <tr>\n";
@@ -195,9 +229,16 @@ foreach($whiteboard_tags as $name => $id_array) {
   }
 
 print "</table>\n";
+print "<br />\n";
 }
 
 print "<hr>\n";
 print "<br><br>Script done<br>\n";
+
+$html_end = <<<EOD
+  </body>
+</html>
+EOD;
+print $html_end;
 
 ?>
