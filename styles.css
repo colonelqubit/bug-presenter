@@ -17,3 +17,8 @@
 td, th {
     text-align: left;
 }
+
+.nicebox {
+    background-color: lightblue;
+    width: 100%;
+}

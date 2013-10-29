@@ -36,7 +36,12 @@ print $html_start;
 // ASSUMPTION: There will be various columns in the data including:
 //   - Bug ID
 //   - Whiteboard
-$input_file = "bugzilla-data_NEW-ASSIGNED-REOPENED.csv";
+$input_file = "bugzilla-data_UNCONFIRMED.csv";
+
+// Optionally show data from a different data set.
+if(in_array($_GET["status"], array("NEW", "ASSIGNED", "REOPENED"))) {
+  $input_file = "bugzilla-data_NEW-ASSIGNED-REOPENED.csv";
+}
 
 $data = array();
 $column_headers = null;
@@ -50,7 +55,8 @@ $bug_show_url = $bugtracker_url . "show_bug.cgi?id=";
 // This is a hash, keyed by tag names.
 $whiteboard_tags = array();
 
-$in_handle = @fopen($input_file, "r");
+$in_handle = @fopen($input_file, "r") or
+  die("Oops, can't open '$input_file'.");
 
 while(!feof($in_handle)) {
   // Suck in the CSV data...
@@ -94,14 +100,30 @@ fclose($in_handle);
 print "<h1><a href=\"\">Bug Presenter:</a></h1>\n";
 print "<h3>LibreOffice Bugs organized by <a href=\"https://wiki.documentfoundation.org/QA/Bugzilla/Fields/Whiteboard\">whiteboard</a> tags.</h3>\n";
 
+// Provide options on data source, and list current source of data.
+
+
+$input_data = <<<EOD
+<div class="nicebox">
+  <table>
+    <tr><th>Input Data:</th> <td><code>$input_file</code></td></tr>
+    <tr><th>Available Data:</th>
+      <td><a href="?status=UNCONFIRMED">UNCONFIRMED</a> - 
+          <a href="?status=NEW">NEW, REOPENED, ASSIGNED</a> - 
+          NEEDINFO - 
+          RESOLVED
+      </td>
+    </tr>
+  </table>
+</div>
+EOD;
+print $input_data;
 
 // Provide a search link for a whiteboard tag.
 function search_link_for_tag($tag) {
   global $bugtracker_url;
   return $bugtracker_url . "buglist.cgi?status_whiteboard_type=allwordssubstr&query_format=advanced&status_whiteboard=$tag&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&product=LibreOffice";
 }
-
-print "<p>Input Data: '$input_file'</p>\n";
 
 $notes = <<<EOD
 <ul>
