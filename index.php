@@ -41,8 +41,11 @@ $input_file = "bugzilla-data_NEW-ASSIGNED-REOPENED.csv";
 $data = array();
 $column_headers = null;
 
+// Bug base url.
+$bugtracker_url = "https://bugs.freedesktop.org/";
+
 // URL for showing a bug.
-$bug_show_url = "https://bugs.freedesktop.org/show_bug.cgi?id=";
+$bug_show_url = $bugtracker_url . "show_bug.cgi?id=";
 
 // This is a hash, keyed by tag names.
 $whiteboard_tags = array();
@@ -91,14 +94,36 @@ fclose($in_handle);
 print "<h1><a href=\"\">Bug Presenter:</a></h1>\n";
 print "<h3>LibreOffice Bugs organized by <a href=\"https://wiki.documentfoundation.org/QA/Bugzilla/Fields/Whiteboard\">whiteboard</a> tags.</h3>\n";
 
+
+// Provide a search link for a whiteboard tag.
+function search_link_for_tag($tag) {
+  global $bugtracker_url;
+  return $bugtracker_url . "buglist.cgi?status_whiteboard_type=allwordssubstr&query_format=advanced&status_whiteboard=$tag&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&product=LibreOffice";
+}
+
 print "<p>Input Data: '$input_file'</p>\n";
 
-print "<ul>\n";
-print "  <li>Lists of bugs are presented below.</li>\n";
-print "  <li><strike>We're only including UNCONFIRMED bugs for now.</strike> - we're experimenting with different lists: UNCONFIRMED, NEW + ASSIGNED + REOPENED, etc..</li>\n";
-print "  <li>Whiteboard tags are sorted in case-insensitive alphabetical order.</li>\n";
-print "  <li>Code for this Bug Presenter should be pushed up to GitHub soon. Feel free to throw something at me on IRC to speed-up the process :-)</li>\n";
-print "</ul>\n";
+$notes = <<<EOD
+<ul>
+  <li>Lists of bugs are presented below.</li>
+  <li><strike>We're only including UNCONFIRMED bugs for now.</strike> - we're experimenting with different lists: UNCONFIRMED, NEW + ASSIGNED + REOPENED, etc..</li>
+  <li>Whiteboard tags are sorted in case-insensitive alphabetical order.</li>
+  <li>Code for this Bug Presenter should be pushed up to GitHub soon. Feel free to throw something at me on IRC to speed-up the process :-)</li>
+</ul>
+
+EOD;
+print $notes;
+
+$bsa = search_link_for_tag("BSA");
+$tags_we_ignore = <<<EOD
+<h3>Tags we ignore or don't print:</h3>
+<p>(If you want to search for a tag, click the tag link and you'll be taken to a search on Bugzilla)</p>
+<ul>
+  <li><a href="$bsa">BSA</a> - Too many bugs tagged with 'BSA' for it to be usefully included.</li>
+</ul>
+
+EOD;
+print $tags_we_ignore;
 
 $looking_for_work = <<<EOD
 <h3>Looking for work?</h3>
@@ -190,7 +215,14 @@ print "</table>\n";
 // Fields to print out for each bug.
 $fields = array("Bug ID", "Component", "Status", "Summary", "Whiteboard");
 
+// Whiteboard tags to ignore:
+$tags_to_ignore = array("BSA");
+
 foreach($whiteboard_tags as $name => $id_array) {
+  if(in_array($name, $tags_to_ignore)) {
+    continue;
+  }
+
   print "<hr>\n";
   print "<div class=\"floatleft\"><h2 id=\"$name\">$name</h2></div>\n";
 
