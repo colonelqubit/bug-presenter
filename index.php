@@ -16,6 +16,17 @@
 //
 //
 
+
+// Information about particular tags that is helpful for triagers.
+$tag_information = array(
+  "EasyHack" => "A bug triaged by developers and tagged by difficult, needed skills, etc..",
+  "MultipleBugs" => "This bug report needs to be split into at least two separate reports.",
+  "Need_Advice" => "This bug needs input from a developer.",
+  "PossibleRegression" => "This bug report could be a regression. We need independent confirmation before we can remove <em>PossibleRegression</em> from the Whiteboard and add <em>regression</em> to the Keywords.",
+  "ProposedEasyHack" => "A bug nominated to be triaged by developers."
+  
+);
+
 // HTML blah, blah
 $html_start = <<<EOD
 <html>
@@ -233,6 +244,7 @@ print "    </td>\n";
 print "  </tr>\n";
 print "</table>\n";
 
+print "<hr />\n";
 
 // Fields to print out for each bug.
 $fields = array("Bug ID", "Component", "Status", "Summary", "Whiteboard");
@@ -245,11 +257,12 @@ foreach($whiteboard_tags as $name => $id_array) {
     continue;
   }
 
-  print "<hr>\n";
-  print "<div class=\"floatleft\"><h2 id=\"$name\">$name</h2></div>\n";
+  print "<div class=\"floatleft\"><h2 id=\"$name\">$name</h2>\n";
 
-  // Back-to-top link
-  print "<div class=\"floatright\" /><a href=\"#top\"><em>Back to top</em></a></div>\n";
+  if(array_key_exists($name, $tag_information)) {
+    print "<p><code>{$tag_information[$name]}</code></p>\n";
+  }
+  print "</div>\n";
 
   print "<table width=\"100%\">\n";
   print "  <tr>\n";
@@ -284,6 +297,12 @@ foreach($whiteboard_tags as $name => $id_array) {
 
 print "</table>\n";
 print "<br />\n";
+
+  // Back-to-top link
+  print "<div class=\"floatright\" /><a href=\"#top\"><em>Back to top</em></a></div>\n";
+
+  print "<hr>\n";
+
 }
 
 print "<hr>\n";
