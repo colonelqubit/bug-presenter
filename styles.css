@@ -1,0 +1,19 @@
+/* CSS Styles for the Bug Presenter */
+/*
+ * TODO: Tweak the code to use CSS rather than inline
+ *       attributes.
+ */
+
+.floatleft {
+    float: left;
+    margin: 0px 5px 5px 0px;
+}
+
+.floatright {
+    float: right;
+    margin: 0px 0px 5px 5px;
+} 
+
+td, th {
+    text-align: left;
+}
