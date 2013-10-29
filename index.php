@@ -22,7 +22,7 @@
 // ASSUMPTION: There will be various columns in the data including:
 //   - Bug ID
 //   - Whiteboard
-$input_file = "bugzilla-data.csv.BACKUP";
+$input_file = "bugzilla-data_NEW-ASSIGNED-REOPENED.csv";
 
 $data = array();
 $column_headers = null;
@@ -74,15 +74,29 @@ while(!feof($in_handle)) {
 }
 fclose($in_handle);
 
-print "<h1>Bug Presenter:</h1>\n";
+print "<h1><a href=\"\">Bug Presenter:</a></h1>\n";
 print "<h3>LibreOffice Bugs organized by <a href=\"https://wiki.documentfoundation.org/QA/Bugzilla/Fields/Whiteboard\">whiteboard</a> tags.</h3>\n";
+
+print "<p>Input Data: '$input_file'</p>\n";
 
 print "<ul>\n";
 print "  <li>Lists of bugs are presented below.</li>\n";
-print "  <li>We're only including UNCONFIRMED bugs for now.</li>\n";
+print "  <li><strike>We're only including UNCONFIRMED bugs for now.</strike> - we're experimenting with different lists: UNCONFIRMED, NEW + ASSIGNED + REOPENED, etc..</li>\n";
 print "  <li>Whiteboard tags are sorted in case-insensitive alphabetical order.</li>\n";
 print "  <li>Code for this Bug Presenter should be pushed up to GitHub soon. Feel free to throw something at me on IRC to speed-up the process :-)</li>\n";
 print "</ul>\n";
+
+$looking_for_work = <<<EOD
+<h3>Looking for work?</h3>
+<p>There are a number of useful things you can do with the data below.</p>
+
+<ul>
+  <li>You'll often see similar tags that differ only by their CaPiTaLiZaTiOn. We'd like to standardize, usually on <a href="http://en.wikipedia.org/wiki/CamelCase">CamelCase</a>.</li>
+  <li>If you're a developer, there are a number of lists of bugs that could use your attention. Anything listed under <a href="#ProposedEasyHack">ProposedEasyHack</a> needs to be evaluated and categorized per the <a href="https://wiki.documentfoundation.org/Development/Easy_Hacks/Creating_a_new_Easy_Hack">EasyHack Workflow</a>.</li>
+</ul>
+
+EOD;
+print $looking_for_work;
 
 print "<br><br><br>\n";
 
@@ -94,17 +108,44 @@ uksort($whiteboard_tags, 'strcasecmp');
 print "<table width=\"100%\">\n";
 print "  <tr>\n";
 
+// WHITEBOARD tags --------------------
 print "    <td valign=\"top\">\n";
-print "Whiteboard tags are...<br>\n";
-print "<ul>\n";
-foreach($whiteboard_tags as $tag => $whatever) {
-  print "  <li><a href=\"#$tag\">$tag</a></li>\n";
+print "<h2>Whiteboard tags are...</h2>\n";
+print "<table>\n";
+foreach($whiteboard_tags as $tag => $ids) {
+  $number_of_bugs = count($ids);
+  print "  <tr><td><a href=\"#$tag\">$tag</a></td>\n";
+  print "      <td>$number_of_bugs</td>\n";
+  print "  </tr>\n";
 }
-print "</ul>\n";
+print "</table>\n";
 print "    </td>\n";
 
+// WHITEBOARD NeedsXYZ tags pertaining to repro
 print "    <td valign=\"top\">\n";
-print "Columns are...<br>\n";
+print "<h2>NeedsXYZ tags are...</h2>\n";
+print "<p>These tags are used to indicate repro needs including OS, hardware, etc..</p>\n";
+print "<table>\n";
+$needs_tag = false;
+foreach($whiteboard_tags as $tag => $ids) {
+  if(preg_match('/^Needs/', $tag)) {
+    $needs_tag = true;
+    $number_of_bugs = count($ids);
+    print "  <tr><td><a href=\"#$tag\">$tag</a></td>\n";
+    print "      <td>$number_of_bugs</td>\n";
+    print "  </tr>\n";
+  }
+}
+if(!$needs_tag) {
+  print "<tr><td><em>Sorry, no matching tags found...</em></td></tr>\n";
+}
+
+print "</table>\n";
+print "    </td>\n";
+
+// COLUMN HEADERS --------------------
+print "    <td valign=\"top\">\n";
+print "<h2>Columns are...</h2>\n";
 print "<ul>\n";
 foreach($column_headers as $header) {
   print "  <li>$header</li>\n";
@@ -139,10 +180,10 @@ foreach($whiteboard_tags as $name => $id_array) {
     print "    <td>{$data[$id]['Component']}</td>\n";
 
     // Status
-    print "    <td>{$data[$id]['Status']}</td>\n";
+    print "    <td><strong>{$data[$id]['Status']}</strong></td>\n";
 
     // Summary
-    print "    <td>{$data[$id]['Summary']}</td>\n";
+    print "    <td>&nbsp;&nbsp;{$data[$id]['Summary']}</td>\n";
 
     // Whiteboard
     print "    <td>\n";
