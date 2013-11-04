@@ -1,3 +1,22 @@
+This is the Bug Presenter -- a tool for presenting information from Bugzilla
+(primary Whiteboard information, for now)
+
+Authors
+-------
+
+Created by Robinson Tryon <qubit@runcibility.com> - 2013
+
+
+License
+-------
+
+This tool is licensed under the GNU General Public License, version
+3. See individual files for license headers.
+
+
+Documentation
+-------------
+
 Data for this Bug Presenter is pulled out of Bugzilla using the
 following commands:
 
