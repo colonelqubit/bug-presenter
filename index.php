@@ -98,6 +98,9 @@ $bug_show_url = $bugtracker_url . "show_bug.cgi?id=";
 // This is a hash, keyed by tag names.
 $whiteboard_tags = array();
 
+// Whiteboard tags to ignore:
+$tags_to_ignore = array("BSA");
+
 // Grab the data
 $data = Bugzilla::csv_to_array($input_file);
 
@@ -107,7 +110,19 @@ $data = Bugzilla::csv_to_array($input_file);
 foreach($data as $bug_id => $bug) {
   foreach($bug["Whiteboard"] as $tag) {
     // Add each tag to the list (keyed by bug #).
-    $whiteboard_tags[$tag] []= $bug_id;
+
+    // We lump all of the 'Confirmed:' and 'NoRepro:' tags
+    // together. We might want to do something more clever
+    // in the future (e.g. grouping by verison or OS?)
+    if(preg_match('/^Confirmed:.+:.+/', $tag)) {
+      $whiteboard_tags["Confirmed [grouped]"] []= $bug_id;
+    } elseif(preg_match('/^NoRepro:.+:.+/', $tag)) {
+      $whiteboard_tags["NoRepro [grouped]"] []= $bug_id;
+    } elseif(in_array($tag, $tags_to_ignore)) {
+      $whiteboard_tags[$tag . " [ignored]"] []= $bug_id;
+    } else {
+      $whiteboard_tags[$tag] []= $bug_id;
+    }
   }
 }
 
@@ -253,15 +268,17 @@ print "<hr />\n";
 // Fields to print out for each bug.
 $fields = array("Bug ID", "Component", "Status", "Summary", "Whiteboard");
 
-// Whiteboard tags to ignore:
-$tags_to_ignore = array("BSA");
-
 foreach($whiteboard_tags as $name => $id_array) {
   if(in_array($name, $tags_to_ignore)) {
     continue;
   }
 
-  print "<div class=\"floatleft\"><h2 id=\"$name\">$name</h2>\n";
+  $color = "";
+  if(preg_match('/[[]grouped]/', $name)) {
+    $color = "orange";
+  }
+  print "<div class=\"floatleft\">\n";
+  print "  <h2 style='color:$color;' id=\"$name\">$name</h2>\n";
 
   if(array_key_exists($name, $tag_information)) {
     print "<p><code>{$tag_information[$name]}</code></p>\n";
