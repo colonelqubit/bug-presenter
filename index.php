@@ -54,6 +54,23 @@ $html_start = <<<EOD
 EOD;
 print $html_start;
 
+// Base URL for grabbing bugs from Bugzilla
+$base_csv_url = "https://bugs.freedesktop.org/buglist.cgi?product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords";
+
+// Given one or more bug statuses (as an array of strings), this
+// function returns a Bugzilla URL that will return CSV output of all
+// LibreOffice bugs that match the set of statuses.
+function csv_url($statuses) {
+  global $base_csv_url;
+  $statuses_string = "";
+
+  foreach($statuses as $status) {
+    $statuses_string .= "&bug_status=$status";
+  }
+
+  return $base_csv_url . $statuses_string;
+}
+
 
 // Take the bugzilla data as CSV input and chop it up by Whiteboard
 // tag.
@@ -61,11 +78,13 @@ print $html_start;
 // ASSUMPTION: There will be various columns in the data including:
 //   - Bug ID
 //   - Whiteboard
-$input_file = "bugzilla-data_UNCONFIRMED.csv";
+//$input_file = "bugzilla-data_UNCONFIRMED.csv";
+$input_file = csv_url(array("UNCONFIRMED"));
 
 // Optionally show data from a different data set.
-if(in_array($_GET["status"], array("NEW", "ASSIGNED", "REOPENED"))) {
-  $input_file = "bugzilla-data_NEW-ASSIGNED-REOPENED.csv";
+$new_assigned_reopened_array = array("NEW", "ASSIGNED", "REOPENED");
+if(in_array($_GET["status"], $new_assigned_reopened_array)) {
+  $input_file = csv_url($new_assigned_reopened_array);
 }
 
 $data = array();
