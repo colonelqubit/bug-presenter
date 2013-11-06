@@ -33,9 +33,11 @@ require_once("Bugzilla.php");
 
 // Information about particular tags that is helpful for triagers.
 $tag_information = array(
+  "Confirmed" => "Bugs confirmed using a particular LO and OS version.",
   "EasyHack" => "A bug triaged by developers and tagged by difficult, needed skills, etc..",
   "MultipleBugs" => "This bug report needs to be split into at least two separate reports.",
   "Need_Advice" => "This bug needs input from a developer.",
+  "NoRepro" => "Bugs that cannot be confirmed on a particular LO and OS version.",
   "PossibleRegression" => "This bug report could be a regression. We need independent confirmation before we can remove <em>PossibleRegression</em> from the Whiteboard and add <em>regression</em> to the Keywords.",
   "ProposedEasyHack" => "A bug nominated to be triaged by developers."
   
