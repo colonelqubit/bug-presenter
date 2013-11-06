@@ -98,10 +98,20 @@ $bugtracker_url = "https://bugs.freedesktop.org/";
 $bug_show_url = $bugtracker_url . "show_bug.cgi?id=";
 
 // This is a hash, keyed by tag names.
+// Format:
+//   "(tag_name)" => array( "display" => "(Tag display name)",
+//                          "bugs" => array("(bug_id)", "(bug_id)", ...));
 $whiteboard_tags = array();
 
 // Whiteboard tags to ignore:
 $tags_to_ignore = array("BSA");
+foreach($tags_to_ignore as $tag) {
+  $whiteboard_tags[$tag]["display"] = "$tag [ignored]";
+}
+
+// Initialize any special groupings
+$whiteboard_tags["Confirmed"]["display"] = "Confirmed [grouped]";
+$whiteboard_tags["NoRepro"]["display"] = "NoRepro [grouped]";
 
 // Grab the data
 $data = Bugzilla::csv_to_array($input_file);
@@ -112,18 +122,20 @@ $data = Bugzilla::csv_to_array($input_file);
 foreach($data as $bug_id => $bug) {
   foreach($bug["Whiteboard"] as $tag) {
     // Add each tag to the list (keyed by bug #).
+    $name_used_as_index = $tag;
 
     // We lump all of the 'Confirmed:' and 'NoRepro:' tags
     // together. We might want to do something more clever
     // in the future (e.g. grouping by verison or OS?)
-    if(preg_match('/^Confirmed:.+:.+/', $tag)) {
-      $whiteboard_tags["Confirmed [grouped]"] []= $bug_id;
-    } elseif(preg_match('/^NoRepro:.+:.+/', $tag)) {
-      $whiteboard_tags["NoRepro [grouped]"] []= $bug_id;
-    } elseif(in_array($tag, $tags_to_ignore)) {
-      $whiteboard_tags[$tag . " [ignored]"] []= $bug_id;
-    } else {
-      $whiteboard_tags[$tag] []= $bug_id;
+    if(preg_match('/^(Confirmed|NoRepro):.+:.+/', $tag, $matches)) {
+      $name_used_as_index = $matches[1];
+    }
+
+    $whiteboard_tags[$name_used_as_index]["bugs"] []= $bug_id;
+
+    // Make sure each tag has a display name
+    if(empty($whiteboard_tags[$name_used_as_index]["display"])) {
+      $whiteboard_tags[$name_used_as_index]["display"] = $name_used_as_index;
     }
   }
 }
@@ -221,9 +233,9 @@ print "  <tr>\n";
 print "    <td valign=\"top\">\n";
 print "<h2>Whiteboard tags are...</h2>\n";
 print "<table>\n";
-foreach($whiteboard_tags as $tag => $ids) {
-  $number_of_bugs = count($ids);
-  print "  <tr><td><a href=\"#$tag\">$tag</a></td>\n";
+foreach($whiteboard_tags as $tag => $tag_data) {
+  $number_of_bugs = count($tag_data["bugs"]);
+  print "  <tr><td><a href=\"#$tag\">" . $tag_data["display"] . "</a></td>\n";
   print "      <td>$number_of_bugs</td>\n";
   print "  </tr>\n";
 }
@@ -236,11 +248,11 @@ print "<h2>NeedsXYZ tags are...</h2>\n";
 print "<p>These tags are used to indicate repro needs including OS, hardware, etc..</p>\n";
 print "<table>\n";
 $needs_tag = false;
-foreach($whiteboard_tags as $tag => $ids) {
+foreach($whiteboard_tags as $tag => $tag_data) {
   if(preg_match('/^Needs/', $tag)) {
     $needs_tag = true;
-    $number_of_bugs = count($ids);
-    print "  <tr><td><a href=\"#$tag\">$tag</a></td>\n";
+    $number_of_bugs = count($tag_data["bugs"]);
+    print "  <tr><td><a href=\"#$tag\">" . $tag_data["display"] . "</a></td>\n";
     print "      <td>$number_of_bugs</td>\n";
     print "  </tr>\n";
   }
@@ -270,17 +282,19 @@ print "<hr />\n";
 // Fields to print out for each bug.
 $fields = array("Bug ID", "Component", "Status", "Summary", "Whiteboard");
 
-foreach($whiteboard_tags as $name => $id_array) {
+foreach($whiteboard_tags as $name => $tag_data) {
   if(in_array($name, $tags_to_ignore)) {
     continue;
   }
 
+  $display_name = $tag_data["display"];
+
   $color = "";
-  if(preg_match('/[[]grouped]/', $name)) {
+  if(preg_match('/[[]grouped]/', $display_name)) {
     $color = "orange";
   }
   print "<div class=\"floatleft\">\n";
-  print "  <h2 style='color:$color;' id=\"$name\">$name</h2>\n";
+  print "  <h2 style='color:$color;' id=\"$name\">$display_name</h2>\n";
 
   if(array_key_exists($name, $tag_information)) {
     print "<p><code>{$tag_information[$name]}</code></p>\n";
@@ -294,7 +308,7 @@ foreach($whiteboard_tags as $name => $id_array) {
   }
   print "  </tr>\n";
 
-  foreach($id_array as $id) {
+  foreach($tag_data["bugs"] as $id) {
     print "  <tr>\n";
 
     // Bug ID
