@@ -28,6 +28,9 @@
 //
 
 
+// Libraries
+require_once("Bugzilla.php");
+
 // Information about particular tags that is helpful for triagers.
 $tag_information = array(
   "EasyHack" => "A bug triaged by developers and tagged by difficult, needed skills, etc..",
@@ -66,7 +69,6 @@ if(in_array($_GET["status"], array("NEW", "ASSIGNED", "REOPENED"))) {
 }
 
 $data = array();
-$column_headers = null;
 
 // Bug base url.
 $bugtracker_url = "https://bugs.freedesktop.org/";
@@ -77,47 +79,19 @@ $bug_show_url = $bugtracker_url . "show_bug.cgi?id=";
 // This is a hash, keyed by tag names.
 $whiteboard_tags = array();
 
-$in_handle = @fopen($input_file, "r") or
-  die("Oops, can't open '$input_file'.");
+// Grab the data
+$data = Bugzilla::csv_to_array($input_file);
 
-while(!feof($in_handle)) {
-  // Suck in the CSV data...
-  $line = fgets($in_handle);
-  $line_array = str_getcsv(rtrim($line));
-
-  // Store the first line as a separate array.
-  if(is_null($column_headers)) {
-    $column_headers = $line_array;
-
-  } else {
-    // Grab a line of bugzilla data and put it in a hash keyed by
-    // column header.
-    $row = array_combine($column_headers, $line_array);
-
-    // Grab the whiteboard string, split it into tags, and add the
-    // tags to our hash of whiteboard tags.
-
-    // NOTE: explode() won't work, as we sometimes have
-    // extraneous/duplicate whitespace in the whiteboard.
-    // UPDATE: Well...perhaps we should see any weird whitespace problems?
-    $tags = preg_split('/\s+/', trim($row["Whiteboard"]));
-    if($tags == array('')) {
-      $tags = array();
-    }
-
-    foreach($tags as $tag) {
-      // Add this bug # to the list.
-      $whiteboard_tags[$tag] []= $row["Bug ID"];
-    }
-
-    // Add the bug data to our general hash, keyed by Bug ID.
-    // The whiteboard data is more convenient when stored in its own
-    // array, so we'll use that
-    $row["Whiteboard"] = $tags;
-    $data[$row["Bug ID"]] = $row;
+// Populate the $whiteboard_tags array
+// (We now need to use a 2-step process, since we factored-out
+//  the more general import step)
+foreach($data as $bug_id => $bug) {
+  foreach($bug["Whiteboard"] as $tag) {
+    // Add each tag to the list (keyed by bug #).
+    $whiteboard_tags[$tag] []= $bug_id;
   }
 }
-fclose($in_handle);
+
 
 print "<h1><a href=\"\">Bug Presenter:</a></h1>\n";
 print "<h3>LibreOffice Bugs organized by <a href=\"https://wiki.documentfoundation.org/QA/Bugzilla/Fields/Whiteboard\">whiteboard</a> tags.</h3>\n";
