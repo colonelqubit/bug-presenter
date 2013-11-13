@@ -22,7 +22,7 @@ following commands:
 
 
 # UNCONFIRMED bugs
-wget -O bugzilla-data_UNCONFIRMED.csv "https://bugs.freedesktop.org/buglist.cgi?bug_status=UNCONFIRMED&product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords"
+wget -O bugzilla-data_UNCONFIRMED.csv "https://bugs.libreoffice.org/buglist.cgi?bug_status=UNCONFIRMED&product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords"
 
 # NEW, ASSIGNED, REOPENED bugs
-wget -O bugzilla-data_NEW-ASSIGNED-REOPENED.csv "https://bugs.freedesktop.org/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords"
+wget -O bugzilla-data_NEW-ASSIGNED-REOPENED.csv "https://bugs.libreoffice.org/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords"

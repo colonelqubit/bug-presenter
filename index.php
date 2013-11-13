@@ -57,7 +57,7 @@ EOD;
 print $html_start;
 
 // Base URL for grabbing bugs from Bugzilla
-$base_csv_url = "https://bugs.freedesktop.org/buglist.cgi?product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords";
+$base_csv_url = "https://bugs.libreoffice.org/buglist.cgi?product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords";
 
 // Given one or more bug statuses (as an array of strings), this
 // function returns a Bugzilla URL that will return CSV output of all
@@ -92,7 +92,7 @@ if(in_array($_GET["status"], $new_assigned_reopened_array)) {
 $data = array();
 
 // Bug base url.
-$bugtracker_url = "https://bugs.freedesktop.org/";
+$bugtracker_url = "https://bugs.libreoffice.org/";
 
 // URL for showing a bug.
 $bug_show_url = $bugtracker_url . "show_bug.cgi?id=";
