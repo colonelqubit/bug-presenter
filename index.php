@@ -174,7 +174,7 @@ $notes = <<<EOD
   <li>Lists of bugs are presented below.</li>
   <li><strike>We're only including UNCONFIRMED bugs for now.</strike> - we're experimenting with different lists: UNCONFIRMED, NEW + ASSIGNED + REOPENED, etc..</li>
   <li>Whiteboard tags are sorted in case-insensitive alphabetical order.</li>
-  <li>Code for this Bug Presenter should be pushed up to GitHub soon. Feel free to throw something at me on IRC to speed-up the process :-)</li>
+  <li>Code for this Bug Presenter <a href="https://github.com/colonelqubit/bug-presenter">is up on GitHub now.</a></li>
 </ul>
 
 EOD;
