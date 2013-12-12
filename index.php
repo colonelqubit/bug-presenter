@@ -57,7 +57,7 @@ EOD;
 print $html_start;
 
 // Base URL for grabbing bugs from Bugzilla
-$base_csv_url = "https://bugs.libreoffice.org/buglist.cgi?product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords";
+$base_csv_url = $bugtracker_url . "buglist.cgi?product=LibreOffice&query_format=advanced&limit=0&ctype=csv&human=1&columnlist=bug_id,product,component,assigned_to,bug_status,short_desc,op_sys,status_whiteboard,keywords,version";
 
 // Given one or more bug statuses (as an array of strings), this
 // function returns a Bugzilla URL that will return CSV output of all
@@ -179,6 +179,91 @@ $notes = <<<EOD
 
 EOD;
 print $notes;
+
+// OPTIONALLY test out a stats table.
+
+if($_GET["stats-table"]) {
+  // Need to keep track of all of the versions we encounter.
+  $versions = array();
+  // Store bug ids in a 2-d hash keyed on component and version.
+  $bugs_by_component_and_version = array();
+
+  foreach($data as $bug_id => $bug) {
+    $v = $bug["Version"];
+
+    // Chop-down long version numbers to just MAJOR.minor.
+    if(preg_match('/^([0-9]+[.][0-9]+)/', $v, $matches)) {
+      $v = $matches[1];
+    }
+
+    // Throw a warning for any bugs with no version, etc..
+    if(empty($v)) {
+      print "<br />Empty bug: <a href=\"$bugtracker_url$bug_id\">$bug_id</a><br />\n";
+      // Ignore it and move on.
+      continue;
+    }
+
+    if(isset($versions[$v])) {
+      $versions[$v] += 1;
+    } else {
+      $versions[$v] = 1;
+    }
+    if(isset($bugs_by_component_and_version[$bug["Component"]][$v])) {
+      $bugs_by_component_and_version[$bug["Component"]][$v] += 1;
+    } else {
+      $bugs_by_component_and_version[$bug["Component"]][$v] = 1;
+    }
+  }
+
+  // Sort the versions and components alphabetically.
+  uksort($versions, 'strcasecmp');
+  uksort($bugs_by_component_and_version, 'strcasecmp');
+
+  // Print table.
+  print "<p>Bugs from query -- see above</p>";
+  print "<table border=1>\n";
+  print "  <tr>\n";
+  print "    <th>Module Name</th>\n";
+
+  foreach($versions as $version => $num_bugs) {
+    print "    <th>$version</th>\n";
+  }
+  print "    <th>Total Bugs</th>\n";
+  print "  </tr>\n";
+
+  // Print out a row for each component.
+  foreach($bugs_by_component_and_version as $component => $version_table) {
+    $total_bugs = 0;
+    print "  <tr>\n";
+    print "    <th>$component</th>\n";
+
+    foreach($versions as $version => $nothing) {
+      $bugs = $version_table[$version];
+      $total_bugs += $bugs;
+      print "    <td>" . $version_table[$version] . "&nbsp;</td>\n";
+    }
+
+    print "    <td>$total_bugs</td>\n";
+    print "  </tr>\n";
+  }
+
+  // Column totals
+  print "  <tr>\n";
+  print "    <th>Totals</th>\n";
+  foreach($versions as $version => $num_bugs) {
+    print "    <td>$num_bugs</td>\n";
+  }
+
+  // This one's easy -- it's all of the bugs.
+  print "    <td>" . count($data) . " joren did it.</td>\n";
+  print "  </tr>\n";
+
+  print "</table>\n";
+
+  // Print a happy note after printing stats.
+  echo "<p>My life is now complete.</p>\n";
+  die("Joren broke it again");
+}
 
 $bsa = search_link_for_tag("BSA");
 $tags_we_ignore = <<<EOD
