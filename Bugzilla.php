@@ -1,4 +1,4 @@
-<?
+<?php
 
 // Bug Presenter - A tool to present/organize Bugzilla bugs
 // Copyright (c) 2013 - Robinson Tryon <qubit@runcibility.com>
