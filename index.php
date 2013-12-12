@@ -31,6 +31,10 @@
 // Libraries
 require_once("Bugzilla.php");
 
+// Bug base url.
+$bugtracker_url = "https://bugs.libreoffice.org/";
+
+
 // Information about particular tags that is helpful for triagers.
 $tag_information = array(
   "Confirmed" => "Bugs confirmed using a particular LO and OS version.",
@@ -90,9 +94,6 @@ if(in_array($_GET["status"], $new_assigned_reopened_array)) {
 }
 
 $data = array();
-
-// Bug base url.
-$bugtracker_url = "https://bugs.libreoffice.org/";
 
 // URL for showing a bug.
 $bug_show_url = $bugtracker_url . "show_bug.cgi?id=";
